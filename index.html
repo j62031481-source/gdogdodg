@@ -8,7 +8,6 @@
     :root{
       --bg:#0b3a1f;
       --panel:#1b7a3f;
-      --accent:#8bd14b;
       --tile:#7b4c2b;
       --shadow: rgba(0,0,0,0.6);
       --font-stack: "Courier New", Courier, monospace;
@@ -31,7 +30,7 @@
       color:#fff;
       cursor:pointer;
       user-select:none;
-      font-size:11px
+      font-size:11px;
     }
 
     .coords-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .25s,visibility .25s}
@@ -79,4 +78,63 @@
       <div class="coords-value" id="coordsValue">--.--</div>
       <div>
         <button class="btn" id="copyBtn">Kopiuj</button>
-        <button cl
+        <button class="btn" id="closeBtn" style="background:#8b5a37;margin-left:8px">Zamknij</button>
+      </div>
+      <div class="hint" style="margin-top:8px">Udało ci się ukończyć zagadkę... oto kordy</div>
+    </div>
+  </div>
+
+  <script>
+    // Sekwencja do kliknięcia: Emerald (1) -> Diamond (2) -> Gold (3)
+    const correctSeq = ["1","2","3"];
+    let progress = [];
+
+    const modal = document.getElementById('modal');
+    const coordsValue = document.getElementById('coordsValue');
+    const copyBtn = document.getElementById('copyBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    const secretCoords = "X: 7306 Y: 65 Z: 5383"; // <- TU wpisz własne kordy
+
+    function openModal(){
+      coordsValue.textContent = secretCoords;
+      modal.classList.add('open');
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+    }
+
+    document.getElementById('grid').addEventListener('click',(ev)=>{
+      const t = ev.target.closest('.tile');
+      if(!t) return;
+
+      const key = t.dataset.key;
+
+      if (key === correctSeq[progress.length]) {
+        progress.push(key);
+        if (progress.length === correctSeq.length) {
+          openModal();
+          progress = [];
+        }
+      } else {
+        // kliknięto zły kafelek → reset
+        progress = [];
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      const txt = coordsValue.textContent;
+      try{
+        await navigator.clipboard.writeText(txt);
+        copyBtn.textContent = 'Skopiowano';
+        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
+      }catch(e){
+        copyBtn.textContent = 'Brak dostępu';
+        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
+      }
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+  </script>
+</body>
+</html>
