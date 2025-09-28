@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Nigdy nie ufaj bobrom.....</title>
+  <style>
+    :root{
+      --bg:#0b3a1f;
+      --panel:#1b7a3f;
+      --accent:#8bd14b;
+      --tile:#7b4c2b;
+      --shadow: rgba(0,0,0,0.6);
+      --font-stack: "Courier New", Courier, monospace;
+    }
+    html,body{height:100%;margin:0;font-family:var(--font-stack);background:linear-gradient(180deg,#062815 0%, #0b3a1f 100%);color:#e6f7df}
+    .container{max-width:900px;margin:30px auto;padding:24px;background:rgba(0,0,0,0.15);border-radius:12px;box-shadow:0 10px 30px var(--shadow)}
+    h1{margin:0 0 8px;font-size:28px;letter-spacing:1px}
+    p{margin:6px 0 18px}
+
+    .grid{display:grid;grid-template-columns:repeat(8,56px);gap:6px;padding:12px;background:linear-gradient(180deg,#153a1f,#0f2b18);border-radius:8px}
+    .tile{width:56px;height:56px;border-radius:4px;background:linear-gradient(180deg,#8b5a37,#6b3f24);box-shadow:0 4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;user-select:none;font-size:11px}
+    .tile[data-key]{background:linear-gradient(180deg,#3aa76a,#2f8a52)}
+
+    .coords-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .25s,visibility .25s}
+    .coords-modal.open{visibility:visible;opacity:1}
+    .coords-card{background:#f3f6ef;color:#062815;padding:20px;border-radius:12px;min-width:300px;max-width:90%;box-shadow:0 14px 40px rgba(0,0,0,0.6);text-align:center}
+    .coords-value{font-size:20px;padding:8px 12px;border-radius:6px;background:#d7e9c7;margin:12px 0;word-break:break-all}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#1b7a3f;color:#fff;text-decoration:none;cursor:pointer}
+    .hint{font-size:12px;color:rgba(230,247,223,0.8)}
+    footer{margin-top:16px;font-size:13px;color:rgba(230,247,223,0.7)}
+
+    @media (max-width:520px){.grid{grid-template-columns:repeat(4,56px);gap:8px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>...</h1>
+    <p></p>
+
+    <div class="grid" id="grid">
+      <div class="tile">Dirt</div>
+      <div class="tile">Stone</div>
+      <div class="tile" data-key="1">Emerald</div>
+      <div class="tile">Wood</div>
+      <div class="tile">Sand</div>
+      <div class="tile" data-key="2">Diamond</div>
+      <div class="tile">Gravel</div>
+      <div class="tile">Glass</div>
+
+      <div class="tile">Coal</div>
+      <div class="tile">Iron</div>
+      <div class="tile" data-key="3">Gold</div>
+      <div class="tile">Redstone</div>
+      <div class="tile">Lapis</div>
+      <div class="tile">Obsidian</div>
+      <div class="tile">Pumpkin</div>
+      <div class="tile">Emerald</div>
+    </div>
+
+    <footer>Kluczem jest różowy koci dom, a dokładniej białe łóżko w środku...</footer>
+  </div>
+
+  <div class="coords-modal" id="modal">
+    <div class="coords-card">
+      <div style="font-weight:700">Kordy:</div>
+      <div class="coords-value" id="coordsValue">--.--</div>
+      <div>
+        <button class="btn" id="copyBtn">Kopiuj</button>
+        <button class="btn" id="closeBtn" style="background:#8b5a37;margin-left:8px">Zamknij</button>
+      </div>
+      <div class="hint" style="margin-top:8px">Udało ci się ukończyć zagadkę... o to kordy</div>
+    </div>
+  </div>
+
+  <script>
+    // Sekwencja do kliknięcia: Emerald (1) -> Diamond (2) -> Gold (3)
+    const correctSeq = ["1","2","3"];
+    let progress = [];
+
+    const modal = document.getElementById('modal');
+    const coordsValue = document.getElementById('coordsValue');
+    const copyBtn = document.getElementById('copyBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    const secretCoords = "X: 7306 Y: 65 Z: 5383"; // <- TU wpisz własne kordy
+
+    function openModal(){
+      coordsValue.textContent = secretCoords;
+      modal.classList.add('open');
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+    }
+
+    document.getElementById('grid').addEventListener('click',(ev)=>{
+      const t = ev.target.closest('.tile');
+      if(!t) return;
+      if(t.dataset.key){
+        progress.push(t.dataset.key);
+        if(progress.length>correctSeq.length){
+          progress.shift();
+        }
+        if(JSON.stringify(progress)===JSON.stringify(correctSeq)){
+          openModal();
+          progress=[];
+        }
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      const txt = coordsValue.textContent;
+      try{
+        await navigator.clipboard.writeText(txt);
+        copyBtn.textContent = 'Skopiowano';
+        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
+      }catch(e){
+        copyBtn.textContent = 'Brak dostępu';
+        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
+      }
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+  </script>
+</body>
+</html>
