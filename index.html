@@ -19,8 +19,20 @@
     p{margin:6px 0 18px}
 
     .grid{display:grid;grid-template-columns:repeat(8,56px);gap:6px;padding:12px;background:linear-gradient(180deg,#153a1f,#0f2b18);border-radius:8px}
-    .tile{width:56px;height:56px;border-radius:4px;background:linear-gradient(180deg,#8b5a37,#6b3f24);box-shadow:0 4px 0 rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;user-select:none;font-size:11px}
-    .tile[data-key]{background:linear-gradient(180deg,#3aa76a,#2f8a52)}
+    .tile{
+      width:56px;
+      height:56px;
+      border-radius:4px;
+      background:linear-gradient(180deg,#8b5a37,#6b3f24);
+      box-shadow:0 4px 0 rgba(0,0,0,0.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      cursor:pointer;
+      user-select:none;
+      font-size:11px
+    }
 
     .coords-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .25s,visibility .25s}
     .coords-modal.open{visibility:visible;opacity:1}
@@ -67,60 +79,4 @@
       <div class="coords-value" id="coordsValue">--.--</div>
       <div>
         <button class="btn" id="copyBtn">Kopiuj</button>
-        <button class="btn" id="closeBtn" style="background:#8b5a37;margin-left:8px">Zamknij</button>
-      </div>
-      <div class="hint" style="margin-top:8px">Udało ci się ukończyć zagadkę... o to kordy</div>
-    </div>
-  </div>
-
-  <script>
-    // Sekwencja do kliknięcia: Emerald (1) -> Diamond (2) -> Gold (3)
-    const correctSeq = ["1","2","3"];
-    let progress = [];
-
-    const modal = document.getElementById('modal');
-    const coordsValue = document.getElementById('coordsValue');
-    const copyBtn = document.getElementById('copyBtn');
-    const closeBtn = document.getElementById('closeBtn');
-
-    const secretCoords = "X: 7306 Y: 65 Z: 5383"; // <- TU wpisz własne kordy
-
-    function openModal(){
-      coordsValue.textContent = secretCoords;
-      modal.classList.add('open');
-    }
-    function closeModal(){
-      modal.classList.remove('open');
-    }
-
-    document.getElementById('grid').addEventListener('click',(ev)=>{
-      const t = ev.target.closest('.tile');
-      if(!t) return;
-      if(t.dataset.key){
-        progress.push(t.dataset.key);
-        if(progress.length>correctSeq.length){
-          progress.shift();
-        }
-        if(JSON.stringify(progress)===JSON.stringify(correctSeq)){
-          openModal();
-          progress=[];
-        }
-      }
-    });
-
-    copyBtn.addEventListener('click', async ()=>{
-      const txt = coordsValue.textContent;
-      try{
-        await navigator.clipboard.writeText(txt);
-        copyBtn.textContent = 'Skopiowano';
-        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
-      }catch(e){
-        copyBtn.textContent = 'Brak dostępu';
-        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
-      }
-    });
-
-    closeBtn.addEventListener('click', closeModal);
-  </script>
-</body>
-</html>
+        <button cl
