@@ -6,42 +6,48 @@
   <title>Nigdy nie ufaj bobrom.....</title>
   <style>
     :root{
-      --bg:#0b3a1f;
-      --panel:#1b7a3f;
-      --tile:#7b4c2b;
-      --shadow: rgba(0,0,0,0.6);
-      --font-stack: "Courier New", Courier, monospace;
+      --panel:#222;
+      --tile:#444;
+      --font-stack: "Lucida Console", "Courier New", monospace; /* starszy look */
     }
-    html,body{height:100%;margin:0;font-family:var(--font-stack);background:linear-gradient(180deg,#062815 0%, #0b3a1f 100%);color:#e6f7df}
-    .container{max-width:900px;margin:30px auto;padding:24px;background:rgba(0,0,0,0.15);border-radius:12px;box-shadow:0 10px 30px var(--shadow)}
-    h1{margin:0 0 8px;font-size:28px;letter-spacing:1px}
-    p{margin:6px 0 18px}
 
-    .grid{display:grid;grid-template-columns:repeat(8,56px);gap:6px;padding:12px;background:linear-gradient(180deg,#153a1f,#0f2b18);border-radius:8px}
+    /* 🔹 Tło z obrazkiem + blur + przyciemnienie */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:url("https://i.guim.co.uk/img/media/d96373b526e4a11ce51d2668e005a2d8456806ae/144_0_833_500/master/833.jpg?width=620&dpr=1&s=none&crop=none") no-repeat center center;
+      background-size:cover;
+      filter: blur(6px) brightness(0.6);
+      z-index:-1;
+    }
+
+    html,body{height:100%;margin:0;font-family:var(--font-stack);color:#e6e6e6}
+    .container{max-width:900px;margin:30px auto;padding:20px;background:rgba(0,0,0,0.7);border:2px solid #666;box-shadow:4px 4px 0 #000}
+    h1{margin:0 0 8px;font-size:26px;text-transform:uppercase;letter-spacing:1px;color:#fff;text-shadow:1px 1px 0 #000}
+    p{margin:6px 0 18px;font-size:14px}
+
+    /* 🔹 Grid kafelków */
+    .grid{display:grid;grid-template-columns:repeat(8,56px);gap:4px;padding:10px;background:#111;border:2px solid #333}
     .tile{
-      width:56px;
-      height:56px;
-      border-radius:4px;
-      background:linear-gradient(180deg,#8b5a37,#6b3f24);
-      box-shadow:0 4px 0 rgba(0,0,0,0.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      cursor:pointer;
-      user-select:none;
-      font-size:11px;
+      width:56px;height:56px;
+      background:#666;
+      border:2px solid #222;
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;color:#fff;
+      cursor:pointer;user-select:none;
+      transition: background .2s;
     }
+    .tile:hover{background:#777}
 
+    /* 🔹 Modal */
     .coords-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);visibility:hidden;opacity:0;transition:opacity .25s,visibility .25s}
     .coords-modal.open{visibility:visible;opacity:1}
-    .coords-card{background:#f3f6ef;color:#062815;padding:20px;border-radius:12px;min-width:300px;max-width:90%;box-shadow:0 14px 40px rgba(0,0,0,0.6);text-align:center}
-    .coords-value{font-size:20px;padding:8px 12px;border-radius:6px;background:#d7e9c7;margin:12px 0;word-break:break-all}
-    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#1b7a3f;color:#fff;text-decoration:none;cursor:pointer}
-    .hint{font-size:12px;color:rgba(230,247,223,0.8)}
-    footer{margin-top:16px;font-size:13px;color:rgba(230,247,223,0.7)}
-
-    @media (max-width:520px){.grid{grid-template-columns:repeat(4,56px);gap:8px}}
+    .coords-card{background:#222;color:#0f0;padding:20px;border:2px solid #0f0;min-width:300px;max-width:90%;text-align:center;font-family:"Lucida Console", monospace}
+    .coords-value{font-size:18px;padding:8px 12px;margin:12px 0;background:#000;color:#0f0;border:1px solid #0f0}
+    .btn{display:inline-block;padding:6px 12px;margin:4px;background:#111;color:#0f0;border:1px solid #0f0;cursor:pointer;font-family:inherit}
+    .btn:hover{background:#222}
+    footer{margin-top:16px;font-size:12px;color:#ccc;text-align:center}
   </style>
 </head>
 <body>
@@ -78,14 +84,12 @@
       <div class="coords-value" id="coordsValue">--.--</div>
       <div>
         <button class="btn" id="copyBtn">Kopiuj</button>
-        <button class="btn" id="closeBtn" style="background:#8b5a37;margin-left:8px">Zamknij</button>
+        <button class="btn" id="closeBtn">Zamknij</button>
       </div>
-      <div class="hint" style="margin-top:8px">Udało ci się ukończyć zagadkę... oto kordy</div>
     </div>
   </div>
 
   <script>
-    // Sekwencja do kliknięcia: Emerald (1) -> Diamond (2) -> Gold (3)
     const correctSeq = ["1","2","3"];
     let progress = [];
 
@@ -94,46 +98,27 @@
     const copyBtn = document.getElementById('copyBtn');
     const closeBtn = document.getElementById('closeBtn');
 
-    const secretCoords = "X: 7306 Y: 65 Z: 5383"; // <- TU wpisz własne kordy
+    const secretCoords = "X: 7306 Y: 65 Z: 5383";
 
-    function openModal(){
-      coordsValue.textContent = secretCoords;
-      modal.classList.add('open');
-    }
-    function closeModal(){
-      modal.classList.remove('open');
-    }
+    function openModal(){ coordsValue.textContent = secretCoords; modal.classList.add('open'); }
+    function closeModal(){ modal.classList.remove('open'); }
 
     document.getElementById('grid').addEventListener('click',(ev)=>{
-      const t = ev.target.closest('.tile');
-      if(!t) return;
-
+      const t = ev.target.closest('.tile'); if(!t) return;
       const key = t.dataset.key;
-
       if (key === correctSeq[progress.length]) {
         progress.push(key);
-        if (progress.length === correctSeq.length) {
-          openModal();
-          progress = [];
-        }
-      } else {
-        // kliknięto zły kafelek → reset
-        progress = [];
-      }
+        if (progress.length === correctSeq.length) { openModal(); progress = []; }
+      } else { progress = []; } // reset przy złym ruchu
     });
 
     copyBtn.addEventListener('click', async ()=>{
-      const txt = coordsValue.textContent;
-      try{
-        await navigator.clipboard.writeText(txt);
-        copyBtn.textContent = 'Skopiowano';
+      try{ await navigator.clipboard.writeText(coordsValue.textContent);
+        copyBtn.textContent='Skopiowano';
         setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
-      }catch(e){
-        copyBtn.textContent = 'Brak dostępu';
-        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);
-      }
+      }catch(e){ copyBtn.textContent='Brak dostępu';
+        setTimeout(()=>copyBtn.textContent='Kopiuj',1200);}
     });
-
     closeBtn.addEventListener('click', closeModal);
   </script>
 </body>
